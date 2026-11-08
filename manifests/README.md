@@ -6,7 +6,7 @@
 Deployment は migration 用 init container と app container に別々の image を使う。
 環境ごとの tag は overlay の `kustomization.yaml` で個別に管理する（現在の設定は [`overlays/dev/kustomization.yaml`](overlays/dev/kustomization.yaml) を参照）。
 アプリの変更時は app image の tag を、migration の変更時は migration image の tag を更新する。
-変更した image を build・push してから対象環境の overlay を適用する。
+変更した image を build・push し、対象 overlay の `newTag` を更新して `main` にマージすると、Argo CD が変更を自動同期する。
 build と push には、対象 overlay の `newTag` と同じ tag を指定する。
 以下の例の `<app-tag>` と `<migration-tag>` は、対応する `newTag` の値に置き換える。
 
@@ -46,4 +46,14 @@ kubectl -n sandbox-waiting-room create secret tls waiting-room-tls \
 ```sh
 kubectl kustomize manifests/overlays/dev
 kubectl apply -k manifests/overlays/dev
+```
+
+## Argo CD への登録
+
+環境別の Argo CD 設定は `argocd/<environment>/`、workload は `overlays/<environment>/` に置く。
+Application の destination namespace は workload overlay の namespace と合わせ、Project の許可先にも登録する。
+dev の登録と更新には次を実行する。
+
+```sh
+kubectl apply -k manifests/argocd/dev
 ```
