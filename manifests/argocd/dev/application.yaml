@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: virtual-waiting-room-dev
+  namespace: argocd
+spec:
+  project: virtual-waiting-room-dev
+  source:
+    repoURL: https://github.com/navy1634/virtual-waiting-room.git
+    targetRevision: main
+    path: manifests/overlays/dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: sandbox-waiting-room
+  syncPolicy:
+    automated:
+      enabled: true
+      prune: false
+      selfHeal: true

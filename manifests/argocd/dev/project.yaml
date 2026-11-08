@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: virtual-waiting-room-dev
+  namespace: argocd
+spec:
+  description: Virtual Waiting Room の dev overlay を sandbox-waiting-room namespace へ同期
+  sourceRepos:
+    - https://github.com/navy1634/virtual-waiting-room.git
+  destinations:
+    - namespace: sandbox-waiting-room
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+      name: sandbox-waiting-room
+    - group: ""
+      kind: PersistentVolume
+      name: virtual-waiting-room-postgres-storage
+  namespaceResourceWhitelist:
+    - group: ""
+      kind: ConfigMap
+    - group: ""
+      kind: Service
+    - group: ""
+      kind: PersistentVolumeClaim
+    - group: apps
+      kind: Deployment
+    - group: apps
+      kind: StatefulSet
+    - group: networking.k8s.io
+      kind: Ingress
+    - group: networking.k8s.io
+      kind: NetworkPolicy
