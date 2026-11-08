@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: virtual-waiting-room-app-config
+data:
+  APP_ORIGIN: https://waiting-room.navy1634.com
+  APP_RETURN_ORIGIN: https://app.sandbox.navy1634.com
+  DATABASE_HOST: virtual-waiting-room-postgres
+  DATABASE_NAME: waiting_room
+  DATABASE_PORT: "5432"
+  DATABASE_SSLMODE: disable
+  DATABASE_USER: waiting_room
+  HOST: 0.0.0.0
+  OIDC_CLIENT_ID: virtual-waiting-room-sandbox
+  OIDC_ISSUER_URL: https://auth.sandbox.navy1634.com/api
+  OIDC_INTERNAL_URL: http://sandbox-auth-api.sandbox-auth.svc.cluster.local:8080/api
+  OIDC_REDIRECT_URI: https://waiting-room.navy1634.com/auth/callback
+  PORT: "3100"
+  SESSION_COOKIE_DOMAIN: .navy1634.com
+  WAITING_ROOM_CAPACITY: "1"

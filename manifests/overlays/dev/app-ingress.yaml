@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: virtual-waiting-room
+  annotations:
+    ingress.cilium.io/force-https: enabled
+  labels:
+    app.kubernetes.io/name: virtual-waiting-room
+    app.kubernetes.io/part-of: virtual-waiting-room
+spec:
+  ingressClassName: cilium
+  tls:
+    - hosts:
+        - waiting-room.navy1634.com
+      secretName: waiting-room-tls
+  rules:
+    - host: waiting-room.navy1634.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: virtual-waiting-room-app
+                port:
+                  name: http

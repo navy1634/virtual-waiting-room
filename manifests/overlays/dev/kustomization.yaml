@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: sandbox-waiting-room
+resources:
+  - ../../base
+  - namespace.yaml
+  - app-config.yaml
+  - postgres-pv.yaml
+  - app-ingress.yaml
+patches:
+  - path: postgres-pvc-patch.yaml
+images:
+  - name: virtual-waiting-room
+    newName: registry.local:5000/virtual-waiting-room
+    newTag: eadb14eff0e7
+  - name: virtual-waiting-room-migrations
+    newName: registry.local:5000/virtual-waiting-room-migrations
+    newTag: 764cbbfe1e65

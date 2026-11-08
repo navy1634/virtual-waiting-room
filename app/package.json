@@ -1,0 +1,32 @@
+{
+  "name": "virtual-waiting-room",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun src/server/http/server.ts",
+    "format": "bun run oxfmt --write .",
+    "format:check": "bun run oxfmt --check .",
+    "lint": "bun run oxlint --type-aware",
+    "typecheck": "bun run tsc --noEmit",
+    "build:client": "bun build src/client/index.html --target browser --outdir dist/client",
+    "build:server": "bun build src/server/http/server.ts --target bun --outdir dist/server",
+    "build": "bun run build:client && bun run build:server",
+    "test:unit": "bun test tests/*.test.ts",
+    "browser:install": "bun run playwright install chromium",
+    "test:e2e": "bun run build && bun run playwright test",
+    "test": "bun run test:unit && bun run test:e2e"
+  },
+  "dependencies": {
+    "hono": "4.13.14",
+    "openid-client": "6.8.8"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "@types/bun": "1.4.4",
+    "oxfmt": "0.75.0",
+    "oxlint": "1.90.0",
+    "oxlint-tsgolint": "7.0.2005",
+    "testcontainers": "^12.2.1",
+    "typescript": "7.0.2"
+  }
+}

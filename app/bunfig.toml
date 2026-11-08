@@ -1,0 +1,3 @@
+[test]
+# Bun test の開始前に Testcontainers の PostgreSQL を一度だけ準備する
+preload = ["./tests/preload.ts"]
