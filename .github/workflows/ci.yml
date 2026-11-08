@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - app/**
+      - db/**
+      - .github/workflows/ci.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    defaults:
+      run:
+        working-directory: app/
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7.0.1
+
+
+      - name: Install Bun from mise
+        uses: jdx/mise-action@v5.2.7
+        with:
+          working_directory: app
+
+      - name: Install dbmate from mise
+        working-directory: db
+        run: mise install --locked
+
+      - name: Install app dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Check formatting
+        run: bun run format:check
+
+      - name: Run lint
+        run: bun run lint
+
+      - name: Check TypeScript types
+        run: bun run typecheck
+
+      - name: Install Playwright system dependencies
+        run: bun run playwright install-deps chromium
+
+      - name: Install Playwright Chromium
+        run: bun run browser:install
+
+      - name: Run unit and browser tests
+        run: bun run test

@@ -1,0 +1,48 @@
+name: Manifests
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - manifests/**
+      - .github/workflows/manifests.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    defaults:
+      run:
+        working-directory: manifests/
+
+    env:
+      ENV: ${{ github.event.pull_request.head.ref == 'main' && 'prd' || 'dev' }}
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install kubectl from mise
+        uses: jdx/mise-action@v5.2.7
+        with:
+          working_directory: manifests
+          persist_github_token: false
+
+      - name: Validate workload manifests
+        run: kubectl kustomize overlays/${{ env.ENV }}
+
+      - name: Validate Argo CD manifests
+        run: kubectl kustomize argocd/${{ env.ENV }}
