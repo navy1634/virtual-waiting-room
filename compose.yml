@@ -1,0 +1,41 @@
+
+name: virtual-waiting-room
+
+services:
+  db:
+    image: postgres:18.6-alpine
+    environment:
+      POSTGRES_DB: waiting_room
+      POSTGRES_USER: waiting_room
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  migrate:
+    image: virtual-waiting-room-migrations:dev
+    build:
+      context: ./db
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://waiting_room:${POSTGRES_PASSWORD}@db:5432/waiting_room?sslmode=disable
+    command:
+      - --no-dump-schema
+      - --migration-lock
+      - --migration-lock-timeout
+      - 30s
+      - migrate
+      - --strict
+
+volumes:
+  postgres_data:

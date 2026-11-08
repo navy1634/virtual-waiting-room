@@ -1,0 +1,12 @@
+.env
+.env.*
+.git
+node_modules
+dist
+coverage
+test-results
+tests
+deploy
+mise.toml
+mise.lock
+*.md

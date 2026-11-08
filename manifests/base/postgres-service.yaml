@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: virtual-waiting-room-postgres
+  labels:
+    app.kubernetes.io/name: virtual-waiting-room-postgres
+    app.kubernetes.io/part-of: virtual-waiting-room
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: virtual-waiting-room-postgres
+  ports:
+    - name: postgresql
+      port: 5432
+      targetPort: postgresql
+      protocol: TCP

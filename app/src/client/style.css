@@ -1,0 +1,77 @@
+/* 全画面で共有する文字色・背景・box model */
+:root {
+  color-scheme: light;
+  font-family: system-ui, sans-serif;
+  color: #172032;
+  background: #f4f6fb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* 画面幅と見出し・本文の基本レイアウト */
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+}
+
+.page {
+  width: min(100% - 2rem, 42rem);
+  margin: 0 auto;
+  padding: 3rem 0;
+}
+
+h1,
+h2 {
+  line-height: 1.25;
+}
+
+p {
+  line-height: 1.7;
+}
+
+/* 待合・保護画面で共通する操作ボタン */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+button,
+.actions a {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #183d70;
+  border-radius: 0.4rem;
+  padding: 0.55rem 1rem;
+  color: #fff;
+  background: #183d70;
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+button[hidden],
+a[hidden],
+[hidden] {
+  display: none !important;
+}
+
+/* 保護対象の内容は、lease 更新に成功した後だけ表示する */
+#protected-content {
+  margin-top: 2rem;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  background: #fff;
+  box-shadow: 0 0.25rem 1.5rem rgb(23 32 50 / 10%);
+}

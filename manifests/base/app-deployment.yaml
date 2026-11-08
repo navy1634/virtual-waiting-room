@@ -1,0 +1,130 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: virtual-waiting-room-app
+  labels:
+    app.kubernetes.io/name: virtual-waiting-room-app
+    app.kubernetes.io/part-of: virtual-waiting-room
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  progressDeadlineSeconds: 600
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: virtual-waiting-room-app
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: virtual-waiting-room-app
+        app.kubernetes.io/part-of: virtual-waiting-room
+    spec:
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        - name: wait-for-postgres
+          image: postgres:18.6-alpine
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -ec
+          args:
+            - until pg_isready -h virtual-waiting-room-postgres -p 5432 -U waiting_room -d waiting_room; do sleep 2; done
+          env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: virtual-waiting-room-postgres-secret
+                  key: POSTGRES_PASSWORD
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+        - name: migrate
+          image: virtual-waiting-room-migrations:20261103-1
+          imagePullPolicy: IfNotPresent
+          args:
+            - --no-dump-schema
+            - --migration-lock
+            - --migration-lock-timeout
+            - 30s
+            - migrate
+            - --strict
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: virtual-waiting-room-app-secret
+                  key: DATABASE_URL
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+      containers:
+        - name: app
+          image: virtual-waiting-room:20261103-1
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: virtual-waiting-room-app-config
+          env:
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: virtual-waiting-room-postgres-secret
+                  key: POSTGRES_PASSWORD
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: virtual-waiting-room-app-secret
+                  key: OIDC_CLIENT_SECRET
+          ports:
+            - name: http
+              containerPort: 3100
+              protocol: TCP
+          startupProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 30
+          readinessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 3
+          livenessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: temporary-files
+              mountPath: /tmp
+      volumes:
+        - name: temporary-files
+          emptyDir:
+            medium: Memory
+            sizeLimit: 64Mi
