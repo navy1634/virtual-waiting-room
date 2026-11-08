@@ -1,0 +1,104 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "automerge": false,
+  "automergeType": "pr",
+  "ignoreTests": false,
+  "baseBranchPatterns": [
+    "main"
+  ],
+  "reviewers": [
+    "navy1634"
+  ],
+  "timezone": "Asia/Tokyo",
+  "minimumReleaseAge": "3 days",
+  "schedule": [
+    "before 5am on tuesday"
+  ],
+  "labels": [
+    "renovate"
+  ],
+  "docker-compose": {
+    "enabled": true
+  },
+  "dockerfile": {
+    "enabled": true
+  },
+  "kubernetes": {
+    "managerFilePatterns": [
+      "/^manifests\\/base\\/.*\\.yaml$/"
+    ]
+  },
+  "enabledManagers": [
+    "bun",
+    "docker-compose",
+    "dockerfile",
+    "kubernetes",
+    "mise"
+  ],
+  "packageRules": [
+    {
+      "matchManagers": [
+        "docker-compose",
+        "dockerfile",
+        "kubernetes"
+      ],
+      "groupName": "container images"
+    },
+    {
+      "matchManagers": [
+        "kubernetes"
+      ],
+      "matchPackageNames": [
+        "virtual-waiting-room",
+        "virtual-waiting-room-migrations"
+      ],
+      "enabled": false
+    },
+    {
+      "matchManagers": [
+        "bun"
+      ],
+      "matchFileNames": [
+        "app/package.json"
+      ],
+      "groupName": "app dependencies"
+    },
+    {
+      "matchManagers": [
+        "mise"
+      ],
+      "groupName": "tool versions"
+    },
+    {
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "automerge": true
+    },
+    {
+      "matchManagers": [
+        "mise"
+      ],
+      "matchFileNames": [
+        "db/mise.toml"
+      ],
+      "automerge": false
+    },
+    {
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "dependencyDashboardApproval": true
+    }
+  ],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": [
+      "before 5am on tuesday"
+    ]
+  }
+}
