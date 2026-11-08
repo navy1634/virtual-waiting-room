@@ -64,7 +64,17 @@ function runDatabaseAction(
   );
 
   if (result.error || result.status !== 0) {
-    throw new Error(`The vwr_test database ${action} action failed`);
+    const diagnostic = result.error?.message ?? result.stderr.trim();
+    const redactedDiagnostic = diagnostic
+      .replaceAll(databaseUrl!, "[redacted database URL]")
+      .replaceAll(new URL(databaseUrl!).password, "[redacted password]");
+    const safeDiagnostic = token
+      ? redactedDiagnostic.replaceAll(token, "[redacted token]")
+      : redactedDiagnostic;
+
+    throw new Error(
+      `The vwr_test database ${action} action failed: ${safeDiagnostic}`,
+    );
   }
 
   return result.stdout.trim();
