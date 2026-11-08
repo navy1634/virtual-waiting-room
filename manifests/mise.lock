@@ -5,7 +5,7 @@ lockfile_version = 3
 [[tools.kubectl]]
 version = "1.37.2"
 backend = "aqua:kubernetes/kubernetes/kubectl"
-specifiers = ["latest"]
+specifiers = ["1.37.2"]
 
 [tools.kubectl."platforms.linux-arm64"]
 checksum = "sha256:fcc16f63186659d9722014b7e02d5fdd2d4e669cb8c0ab66365d7d3b8ba03509"

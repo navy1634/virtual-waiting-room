@@ -25,6 +25,9 @@ jobs:
       run:
         working-directory: manifests/
 
+    env:
+      ENV: ${{ github.event.pull_request.head.ref == 'main' && 'prd' || 'dev' }}
+
     steps:
       - name: Check out the repository
         uses: actions/checkout@v7.0.1
@@ -37,5 +40,8 @@ jobs:
           working_directory: manifests
           persist_github_token: false
 
-      - name: Validate Kubernetes manifests
-        run: kubectl kustomize overlays/dev
+      - name: Validate workload manifests
+        run: kubectl kustomize overlays/${{ env.ENV }}
+
+      - name: Validate Argo CD manifests
+        run: kubectl kustomize argocd/${{ env.ENV }}
