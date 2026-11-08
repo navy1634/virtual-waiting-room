@@ -13,7 +13,7 @@
     "build": "bun run build:client && bun run build:server",
     "test:unit": "bun test tests/*.test.ts",
     "browser:install": "bun run playwright install chromium",
-    "test:e2e": "bun run build && bun run playwright test",
+    "test:e2e": "bun run build && bun run --bun playwright test",
     "test": "bun run test:unit && bun run test:e2e"
   },
   "dependencies": {
