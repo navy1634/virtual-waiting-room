@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: virtual-waiting-room-postgres
+spec:
+  storageClassName: ""
+  volumeName: virtual-waiting-room-postgres-storage

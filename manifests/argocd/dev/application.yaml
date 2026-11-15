@@ -1,10 +1,10 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: virtual-waiting-room-dev
+  name: virtual-waiting-room
   namespace: argocd
 spec:
-  project: virtual-waiting-room-dev
+  project: virtual-waiting-room
   source:
     repoURL: https://github.com/navy1634/virtual-waiting-room.git
     targetRevision: main

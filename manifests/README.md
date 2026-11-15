@@ -4,9 +4,10 @@
 適用時は対象環境の overlay を指定する。
 
 Deployment は migration 用 init container と app container に別々の image を使う。
-環境ごとの tag は overlay の `kustomization.yaml` で個別に管理する（現在の設定は [`overlays/dev/kustomization.yaml`](overlays/dev/kustomization.yaml) を参照）。
+環境ごとの tag は overlay の `kustomization.yaml` で個別に管理する（現在の設定は [`overlays/prd/kustomization.yaml`](overlays/prd/kustomization.yaml) を参照）。
 アプリの変更時は app image の tag を、migration の変更時は migration image の tag を更新する。
-変更した image を build・push し、対象 overlay の `newTag` を更新して `main` にマージすると、Argo CD が変更を自動同期する。
+変更した image を build・push し、対象 overlay の `newTag` を更新して `main` にマージする。
+prd Application は Argo CD で差分を確認してから手動同期する。
 build と push には、対象 overlay の `newTag` と同じ tag を指定する。
 以下の例の `<app-tag>` と `<migration-tag>` は、対応する `newTag` の値に置き換える。
 
@@ -44,16 +45,26 @@ kubectl -n sandbox-waiting-room create secret tls waiting-room-tls \
 ```
 
 ```sh
-kubectl kustomize manifests/overlays/dev
-kubectl apply -k manifests/overlays/dev
+kubectl kustomize manifests/overlays/prd
 ```
 
 ## Argo CD への登録
 
-環境別の Argo CD 設定は `argocd/<environment>/`、workload は `overlays/<environment>/` に置く。
+環境ごとの Argo CD 設定は `argocd/<environment>/`、workload は `overlays/<environment>/` に置く。
+Application と AppProject の名前は `virtual-waiting-room` とする。
 Application の destination namespace は workload overlay の namespace と合わせ、Project の許可先にも登録する。
-dev の登録と更新には次を実行する。
+
+登録前に `kubectl config current-context` で対象環境の cluster を確認し、`manifests/` から対応する設定を適用する。
+
+prd cluster には `kubernetes.io/hostname=prd-server` の node が必要である。
+PV はその node 上に `/var/lib/prd-waiting-room/database` を作成する。
+`waiting-room-tls`、`virtual-waiting-room-postgres-secret`、`virtual-waiting-room-app-secret` は `sandbox-waiting-room` namespace に別途作成する。
+prd Application は手動同期とし、main にレビュー承認と必須の CI check が設定されるまでは自動配備を有効にしない。
+
+prd cluster へ登録する場合は、その cluster の context を選び、次を実行する。
 
 ```sh
-kubectl apply -k manifests/argocd/dev
+cd manifests
+kubectl config current-context
+kubectl apply -k argocd/prd
 ```

@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
-  name: virtual-waiting-room-dev
+  name: virtual-waiting-room
   namespace: argocd
 spec:
   description: Virtual Waiting Room の dev overlay を sandbox-waiting-room namespace へ同期
